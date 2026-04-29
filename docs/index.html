@@ -1,0 +1,1055 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>USB ELRS Receiver Configurator</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111c32;
+      --panel2: #15233d;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --line: #24334f;
+      --accent: #38bdf8;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --btn: #1e293b;
+      --btn2: #334155;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #16213d 0, var(--bg) 42%, #060b17 100%);
+      color: var(--text);
+    }
+
+    main {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: 28px;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+    }
+
+.repo-link {
+  display: inline-block;
+  margin-top: 4px;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.repo-link:hover {
+  text-decoration: underline;
+}
+    p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 18px;
+    }
+
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .status {
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.75);
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .status.ok {
+      color: #bbf7d0;
+      border-color: rgba(34, 197, 94, 0.45);
+      background: rgba(34, 197, 94, 0.1);
+    }
+
+    .status.warn {
+      color: #fde68a;
+      border-color: rgba(245, 158, 11, 0.45);
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(420px, 0.9fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(17, 28, 50, 0.96), rgba(12, 20, 36, 0.96));
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.25);
+      margin-bottom: 16px;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: var(--btn);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background: var(--btn2);
+    }
+
+    button.ok {
+      background: rgba(34, 197, 94, 0.14);
+      border-color: rgba(34, 197, 94, 0.45);
+    }
+
+    button.danger {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.45);
+    }
+
+    button.secondary {
+      background: transparent;
+    }
+
+    button.key-capture {
+      min-width: 142px;
+      text-align: left;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 600;
+    }
+
+    button.key-capture.listening {
+      outline: 2px solid var(--accent);
+      color: #bae6fd;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 6px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #0b1222;
+      color: var(--text);
+      font: inherit;
+    }
+
+    input[type="checkbox"] {
+      width: auto;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 70px 1fr 70px;
+      gap: 10px;
+      align-items: center;
+      margin: 8px 0;
+    }
+
+    .bar {
+      height: 12px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #07101f;
+      border: 1px solid var(--line);
+      position: relative;
+    }
+
+    .fill {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 0%;
+      background: var(--ok);
+    }
+
+    .fill.negative {
+      left: auto;
+      right: 50%;
+      background: var(--accent);
+    }
+
+    .value {
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      text-align: right;
+    }
+
+    .raw-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .raw-box {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      background: rgba(15, 23, 42, 0.55);
+    }
+
+    .buttons-grid {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .hid-button {
+      text-align: center;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      padding: 10px 4px;
+      background: rgba(15, 23, 42, 0.7);
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .hid-button.active {
+      background: rgba(34, 197, 94, 0.16);
+      color: #bbf7d0;
+      border-color: rgba(34, 197, 94, 0.6);
+    }
+
+    .note {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .log {
+      min-height: 180px;
+      max-height: 300px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      background: #050914;
+      color: #cbd5e1;
+      white-space: pre-wrap;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+    }
+
+    details summary {
+      cursor: pointer;
+      color: var(--text);
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      display: grid;
+      place-items: center;
+      padding: 16px;
+    }
+
+    .modal-backdrop.hidden {
+      display: none;
+    }
+
+    .modal {
+      width: min(900px, 100%);
+      max-height: 90vh;
+      overflow: auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 30px 100px rgba(0, 0, 0, 0.45);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 920px) {
+      .top {
+        display: block;
+      }
+
+      .status-row {
+        justify-content: flex-start;
+        margin-top: 12px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .raw-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .buttons-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+	  
+	 
+    }
+  </style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <div>
+      <h1>USB EspressLRS Sim Receiver Configurator</h1>
+		<p>
+		  Web configurator for a USB ELRS/CRSF simulator receiver.
+		  The real-time view uses data streamed over USB Serial by the firmware.
+		  <a class="repo-link" href="https://github.com/Fak3R/usb-elrs-sim-receiver" target="_blank" rel="noopener noreferrer">
+			GitHub repository
+		  </a>
+		</p>
+    </div>
+    <div class="status-row">
+      <button id="connectSerial">Connect Radio</button>
+      <span id="serialStatus" class="status">Serial not connected</span>
+      <span id="signalStatus" class="status">CRSF unknown</span>
+      <span id="sourceStatus" class="status">Source: none</span>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div class="card">
+        <h2>Real-time Axes</h2>
+        <div id="axes"></div>
+        <div id="rawValues" class="raw-grid"></div>
+      </div>
+
+      <div class="card">
+        <h2>HID Buttons</h2>
+        <div id="buttons" class="buttons-grid"></div>
+        <p class="note" style="margin-top:12px">
+          Active buttons are logical buttons. If a logical button has a keyboard key assigned, firmware sends the key instead of the joystick button.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Calibration</h2>
+        <p>First capture the stick center. Then start travel calibration and move all sticks to their full minimum and maximum positions.</p>
+        <div class="row">
+          <button id="center">1. Capture center</button>
+          <button id="calStart">2. Start travel calibration</button>
+          <button id="calStop" class="secondary">Stop travel calibration</button>
+          <button id="save" class="ok">Save</button>
+          <button id="defaults" class="danger">Defaults</button>
+        </div>
+      </div>
+	  <div class="card">
+        <h2>Log</h2>
+        <div id="log" class="log"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h2>Button Mapping</h2>
+        <p class="note">
+          Each HID logical button can be activated by any CRSF channel in LOW, MID, or HIGH position.
+          The keyboard column captures the key by pressing it on your keyboard.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Button</th>
+              <th>Channel</th>
+              <th>Position</th>
+              <th>Keyboard</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="buttonMap"></tbody>
+        </table>
+        <div class="row" style="margin-top:14px">
+          <button id="applyButtons">Apply buttons + keys</button>
+          <button class="secondary" id="clearButtons">Clear buttons + keys</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <details>
+          <summary>Advanced: axes</summary>
+          <table>
+            <thead>
+              <tr>
+                <th>Axis</th>
+                <th>CH</th>
+                <th>Min</th>
+                <th>Mid</th>
+                <th>Max</th>
+                <th>Inv</th>
+                <th>Dead</th>
+              </tr>
+            </thead>
+            <tbody id="axisTable"></tbody>
+          </table>
+          <div class="row" style="margin-top:14px">
+            <button id="applyAxes">Apply axes</button>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalBackdrop" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <h2 id="modalTitle"></h2>
+      <div id="modalBody"></div>
+      <div id="modalActions" class="modal-actions"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+const axisNames = [
+  "Axis 1", "Axis 2", "Axis 3", "Axis 4",
+  "Axis 5", "Axis 6", "Axis 7", "Axis 8"
+];
+
+let port = null;
+let reader = null;
+let writer = null;
+let serialBuffer = "";
+let config = null;
+let latestData = null;
+let lastSerialDataMs = 0;
+
+const keyConfig = Array(16).fill(0);
+
+const codeToHid = {
+  KeyA: 4, KeyB: 5, KeyC: 6, KeyD: 7, KeyE: 8, KeyF: 9, KeyG: 10, KeyH: 11,
+  KeyI: 12, KeyJ: 13, KeyK: 14, KeyL: 15, KeyM: 16, KeyN: 17, KeyO: 18, KeyP: 19,
+  KeyQ: 20, KeyR: 21, KeyS: 22, KeyT: 23, KeyU: 24, KeyV: 25, KeyW: 26, KeyX: 27,
+  KeyY: 28, KeyZ: 29,
+
+  Digit1: 30, Digit2: 31, Digit3: 32, Digit4: 33, Digit5: 34,
+  Digit6: 35, Digit7: 36, Digit8: 37, Digit9: 38, Digit0: 39,
+
+  Enter: 40, Escape: 41, Backspace: 42, Tab: 43, Space: 44,
+  Minus: 45, Equal: 46, BracketLeft: 47, BracketRight: 48, Backslash: 49,
+  Semicolon: 51, Quote: 52, Backquote: 53, Comma: 54, Period: 55, Slash: 56,
+  CapsLock: 57,
+
+  F1: 58, F2: 59, F3: 60, F4: 61, F5: 62, F6: 63,
+  F7: 64, F8: 65, F9: 66, F10: 67, F11: 68, F12: 69,
+
+  PrintScreen: 70, ScrollLock: 71, Pause: 72,
+  Insert: 73, Home: 74, PageUp: 75, Delete: 76, End: 77, PageDown: 78,
+  ArrowRight: 79, ArrowLeft: 80, ArrowDown: 81, ArrowUp: 82,
+
+  NumLock: 83,
+  NumpadDivide: 84, NumpadMultiply: 85, NumpadSubtract: 86, NumpadAdd: 87,
+  NumpadEnter: 88,
+  Numpad1: 89, Numpad2: 90, Numpad3: 91, Numpad4: 92, Numpad5: 93,
+  Numpad6: 94, Numpad7: 95, Numpad8: 96, Numpad9: 97, Numpad0: 98,
+  NumpadDecimal: 99
+};
+
+const hidToLabel = {};
+for (const [code, hid] of Object.entries(codeToHid)) {
+  if (!hidToLabel[hid]) hidToLabel[hid] = code;
+}
+hidToLabel[0] = "OFF";
+hidToLabel[40] = "ENTER";
+hidToLabel[41] = "ESC";
+hidToLabel[42] = "BACKSPACE";
+hidToLabel[43] = "TAB";
+hidToLabel[44] = "SPACE";
+hidToLabel[79] = "ARROW RIGHT";
+hidToLabel[80] = "ARROW LEFT";
+hidToLabel[81] = "ARROW DOWN";
+hidToLabel[82] = "ARROW UP";
+
+const el = id => document.getElementById(id);
+
+function log(msg) {
+  const box = el("log");
+  const t = new Date().toLocaleTimeString();
+  box.textContent += `[${t}] ${msg}\n`;
+  box.scrollTop = box.scrollHeight;
+}
+
+function setStatus(id, text, mode = "") {
+  const s = el(id);
+  s.textContent = text;
+  s.className = "status" + (mode ? " " + mode : "");
+}
+
+function keyLabel(hid) {
+  hid = Number(hid) || 0;
+  return hidToLabel[hid] || `HID ${hid}`;
+}
+
+function setKeyButtonLabel(i) {
+  const b = el(`keyCap${i}`);
+  if (!b) return;
+  const hid = keyConfig[i] || 0;
+  b.textContent = hid ? `${keyLabel(hid)} / ${hid}` : "OFF";
+}
+
+function makeUi() {
+  const axes = el("axes");
+  axes.innerHTML = "";
+
+  axisNames.forEach((name, i) => {
+    const row = document.createElement("div");
+    row.className = "bar-row";
+    row.innerHTML = `
+      <div>${name}</div>
+      <div class="bar"><div id="axisFill${i}" class="fill"></div></div>
+      <div id="axisValue${i}" class="value">0.000</div>
+    `;
+    axes.appendChild(row);
+  });
+
+  const rawValues = el("rawValues");
+  rawValues.innerHTML = "";
+  for (let i = 0; i < 16; i++) {
+    const d = document.createElement("div");
+    d.className = "raw-box";
+    d.id = `raw${i}`;
+    d.textContent = `CH${i + 1}: ----`;
+    rawValues.appendChild(d);
+  }
+
+  const buttons = el("buttons");
+  buttons.innerHTML = "";
+  for (let i = 0; i < 16; i++) {
+    const b = document.createElement("div");
+    b.className = "hid-button";
+    b.id = `btn${i}`;
+    b.textContent = `B${i + 1}`;
+    buttons.appendChild(b);
+  }
+
+  const buttonMap = el("buttonMap");
+  buttonMap.innerHTML = "";
+  for (let i = 0; i < 16; i++) {
+    const tr = document.createElement("tr");
+
+    let channelOptions = "";
+    for (let ch = 1; ch <= 16; ch++) {
+      channelOptions += `<option value="${ch}">CH${ch}</option>`;
+    }
+
+    tr.innerHTML = `
+      <td>B${i + 1}</td>
+      <td>
+        <select id="btnCh${i}">
+          ${channelOptions}
+        </select>
+      </td>
+      <td>
+        <select id="btnPos${i}">
+          <option value="OFF">OFF</option>
+          <option value="LOW">LOW</option>
+          <option value="MID">MID</option>
+          <option value="HIGH">HIGH</option>
+        </select>
+      </td>
+      <td>
+        <button type="button" class="key-capture" id="keyCap${i}" data-index="${i}">OFF</button>
+      </td>
+      <td>
+        <button type="button" class="secondary" id="keyClear${i}">Clear</button>
+      </td>
+    `;
+    buttonMap.appendChild(tr);
+  }
+
+  const axisTable = el("axisTable");
+  axisTable.innerHTML = "";
+  for (let i = 0; i < 8; i++) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>Axis ${i + 1}</td>
+      <td id="axisSrc${i}">CH-</td>
+      <td><input id="axisMin${i}" type="number" min="0" max="2047"></td>
+      <td><input id="axisMid${i}" type="number" min="0" max="2047"></td>
+      <td><input id="axisMax${i}" type="number" min="0" max="2047"></td>
+      <td><input id="axisInv${i}" type="checkbox"></td>
+      <td><input id="axisDb${i}" type="number" min="0" max="200"></td>
+    `;
+    axisTable.appendChild(tr);
+  }
+
+  attachKeyCaptureHandlers();
+}
+
+function attachKeyCaptureHandlers() {
+  document.querySelectorAll(".key-capture").forEach(button => {
+    button.addEventListener("click", () => {
+      const i = Number(button.dataset.index);
+      button.textContent = "Press a key...";
+      button.classList.add("listening");
+
+      const onKeyDown = event => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const hid = codeToHid[event.code];
+
+        if (!hid) {
+          button.textContent = `Unsupported: ${event.code}`;
+          button.classList.remove("listening");
+          window.removeEventListener("keydown", onKeyDown, true);
+          return;
+        }
+
+        keyConfig[i] = hid;
+        setKeyButtonLabel(i);
+        button.classList.remove("listening");
+        window.removeEventListener("keydown", onKeyDown, true);
+      };
+
+      window.addEventListener("keydown", onKeyDown, true);
+    });
+  });
+
+  for (let i = 0; i < 16; i++) {
+    el(`keyClear${i}`).addEventListener("click", () => {
+      keyConfig[i] = 0;
+      setKeyButtonLabel(i);
+    });
+  }
+}
+
+function updateAxisBar(i, value) {
+  const fill = el(`axisFill${i}`);
+  const val = el(`axisValue${i}`);
+  const pct = Math.min(50, Math.abs(value) * 50);
+  fill.style.width = `${pct}%`;
+
+  if (value < 0) {
+    fill.classList.add("negative");
+  } else {
+    fill.classList.remove("negative");
+  }
+
+  val.textContent = value.toFixed(3);
+}
+
+function updateButton(i, active) {
+  const b = el(`btn${i}`);
+  b.classList.toggle("active", !!active);
+}
+
+function hidToNorm(v) {
+  if (typeof v !== "number") return 0;
+  const n = (v / 32767.5) - 1;
+  return Math.max(-1, Math.min(1, n));
+}
+
+function renderSerialData(d) {
+  if (!d) return;
+
+  lastSerialDataMs = performance.now();
+  setStatus("sourceStatus", "Source: Serial DATA", "ok");
+
+  if (Array.isArray(d.hid)) {
+    for (let i = 0; i < 8; i++) {
+      updateAxisBar(i, hidToNorm(d.hid[i] ?? 32767));
+    }
+  }
+
+  if (Array.isArray(d.raw)) {
+    for (let i = 0; i < 16; i++) {
+      const box = el(`raw${i}`);
+      if (box) box.textContent = `CH${i + 1}: ${d.raw[i] ?? "----"}`;
+    }
+  }
+
+  if (typeof d.buttons === "number") {
+    for (let i = 0; i < 16; i++) {
+      updateButton(i, (d.buttons & (1 << i)) !== 0);
+    }
+  }
+
+  updateModalLiveValues();
+}
+
+async function connectSerial() {
+  if (!("serial" in navigator)) {
+    alert("This browser does not support Web Serial. Use Chrome or Edge on desktop.");
+    return;
+  }
+
+  try {
+    port = await navigator.serial.requestPort();
+    await port.open({ baudRate: 420000 });
+
+    writer = port.writable.getWriter();
+    reader = port.readable.getReader();
+
+    setStatus("serialStatus", "Serial connected", "ok");
+    setStatus("sourceStatus", "Source: waiting for DATA", "warn");
+    log("Serial connected.");
+
+    readLoop();
+
+    await send("CFG GET");
+    await send("CFG STREAM 1");
+  } catch (e) {
+    setStatus("serialStatus", "Serial error", "warn");
+    log("Serial connection error: " + e.message);
+  }
+}
+
+async function readLoop() {
+  const decoder = new TextDecoder();
+
+  while (port && reader) {
+    try {
+      const { value, done } = await reader.read();
+      if (done) break;
+      if (!value) continue;
+
+      serialBuffer += decoder.decode(value, { stream: true });
+
+      let idx;
+      while ((idx = serialBuffer.indexOf("\n")) >= 0) {
+        const line = serialBuffer.slice(0, idx).trim();
+        serialBuffer = serialBuffer.slice(idx + 1);
+        if (line) handleLine(line);
+      }
+    } catch (e) {
+      log("Serial read error: " + e.message);
+      break;
+    }
+  }
+}
+
+function handleLine(line) {
+  if (line.startsWith("CFG ")) {
+    const payload = line.slice(4);
+    try {
+      config = JSON.parse(payload);
+      applyConfigToUi();
+      log("Config received.");
+    } catch (e) {
+      log(line);
+    }
+    return;
+  }
+
+  if (line.startsWith("DATA ")) {
+    const payload = line.slice(5);
+    try {
+      latestData = JSON.parse(payload);
+      setStatus(
+        "signalStatus",
+        latestData.signal ? "CRSF OK" : "No CRSF",
+        latestData.signal ? "ok" : "warn"
+      );
+      renderSerialData(latestData);
+    } catch (e) {
+      log("DATA parse error: " + line);
+    }
+    return;
+  }
+
+  log(line);
+}
+
+async function send(cmd) {
+  if (!writer) {
+    alert("Connect configuration first.");
+    return false;
+  }
+
+  const encoder = new TextEncoder();
+  await writer.write(encoder.encode(cmd + "\n"));
+  log("> " + cmd);
+  return true;
+}
+
+function applyConfigToUi() {
+  if (!config) return;
+
+  if (Array.isArray(config.axisSource)) {
+    for (let i = 0; i < 8; i++) {
+      el(`axisSrc${i}`).textContent = "CH" + config.axisSource[i];
+    }
+  }
+
+  if (Array.isArray(config.axes)) {
+    config.axes.forEach((a, i) => {
+      if (i >= 8) return;
+      el(`axisMin${i}`).value = a.min;
+      el(`axisMid${i}`).value = a.mid;
+      el(`axisMax${i}`).value = a.max;
+      el(`axisInv${i}`).checked = !!a.invert;
+      el(`axisDb${i}`).value = a.deadband;
+    });
+  }
+
+  if (Array.isArray(config.buttons)) {
+    config.buttons.forEach((b, i) => {
+      if (i >= 16) return;
+      el(`btnCh${i}`).value = b.channel || 1;
+      el(`btnPos${i}`).value = b.enabled ? b.position : "OFF";
+    });
+  }
+
+  if (Array.isArray(config.keys)) {
+    for (let i = 0; i < 16; i++) {
+      keyConfig[i] = Number(config.keys[i] || 0);
+      setKeyButtonLabel(i);
+    }
+  } else {
+    for (let i = 0; i < 16; i++) {
+      keyConfig[i] = 0;
+      setKeyButtonLabel(i);
+    }
+  }
+
+  updateModalLiveValues();
+}
+
+async function applyButtons() {
+  for (let i = 0; i < 16; i++) {
+    const ch = el(`btnCh${i}`).value;
+    const pos = el(`btnPos${i}`).value;
+    await send(`CFG BTN ${i + 1} ${ch} ${pos}`);
+    await send(`CFG KEY ${i + 1} ${keyConfig[i] || 0}`);
+  }
+
+  await send("CFG GET");
+}
+
+async function applyAxes() {
+  for (let i = 0; i < 8; i++) {
+    const min = el(`axisMin${i}`).value;
+    const mid = el(`axisMid${i}`).value;
+    const max = el(`axisMax${i}`).value;
+    const inv = el(`axisInv${i}`).checked ? 1 : 0;
+    const db = el(`axisDb${i}`).value;
+
+    await send(`CFG AXIS ${i + 1} ${min} ${mid} ${max} ${inv} ${db}`);
+  }
+
+  await send("CFG GET");
+}
+
+async function clearButtons() {
+  await send("CFG BTNCLR");
+
+  for (let i = 0; i < 16; i++) {
+    keyConfig[i] = 0;
+    setKeyButtonLabel(i);
+    await send(`CFG KEY ${i + 1} 0`);
+  }
+
+  await send("CFG GET");
+}
+
+function openModal(title, bodyHtml, actions = []) {
+  el("modalTitle").textContent = title;
+  el("modalBody").innerHTML = bodyHtml;
+
+  const actionsBox = el("modalActions");
+  actionsBox.innerHTML = "";
+
+  actions.forEach(action => {
+    const btn = document.createElement("button");
+    btn.textContent = action.label;
+    if (action.className) btn.className = action.className;
+    btn.onclick = action.onClick || closeModal;
+    actionsBox.appendChild(btn);
+  });
+
+  el("modalBackdrop").classList.remove("hidden");
+  updateModalLiveValues();
+}
+
+function closeModal() {
+  el("modalBackdrop").classList.add("hidden");
+}
+
+function axisLiveTableHtml() {
+  let rows = "";
+  for (let i = 0; i < 8; i++) {
+    rows += `
+      <tr>
+        <td>Axis ${i + 1}</td>
+        <td id="modalAxisSrc${i}">-</td>
+        <td id="modalRaw${i}">-</td>
+        <td id="modalHid${i}">-</td>
+        <td id="modalMin${i}">-</td>
+        <td id="modalMid${i}">-</td>
+        <td id="modalMax${i}">-</td>
+        <td id="modalInv${i}">-</td>
+        <td id="modalDb${i}">-</td>
+      </tr>
+    `;
+  }
+
+  return `
+    <table>
+      <thead>
+        <tr>
+          <th>Axis</th>
+          <th>CH</th>
+          <th>Raw</th>
+          <th>HID</th>
+          <th>Min</th>
+          <th>Mid</th>
+          <th>Max</th>
+          <th>Inv</th>
+          <th>Dead</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+function updateModalLiveValues() {
+  if (!latestData || !config) return;
+
+  if (!document.body.contains(el("modalBody"))) return;
+
+  for (let i = 0; i < 8; i++) {
+    const src = config.axisSource?.[i] || "-";
+    const rawIndex = typeof src === "number" ? src - 1 : -1;
+    const raw = rawIndex >= 0 ? latestData.raw?.[rawIndex] : "-";
+    const hid = latestData.hid?.[i] ?? "-";
+    const a = config.axes?.[i];
+
+    const cells = {
+      [`modalAxisSrc${i}`]: src === "-" ? "-" : "CH" + src,
+      [`modalRaw${i}`]: raw,
+      [`modalHid${i}`]: hid,
+      [`modalMin${i}`]: a?.min ?? "-",
+      [`modalMid${i}`]: a?.mid ?? "-",
+      [`modalMax${i}`]: a?.max ?? "-",
+      [`modalInv${i}`]: a?.invert ? "1" : "0",
+      [`modalDb${i}`]: a?.deadband ?? "-"
+    };
+
+    for (const [id, value] of Object.entries(cells)) {
+      const node = el(id);
+      if (node) node.textContent = value;
+    }
+  }
+}
+
+el("connectSerial").addEventListener("click", connectSerial);
+el("center").addEventListener("click", async () => {
+  await send("CFG CENTER");
+});
+el("calStart").addEventListener("click", async () => {
+  await send("CFG CALSTART");
+  openModal(
+    "Travel calibration",
+    `<p>Move all sticks and relevant controls to their full minimum and maximum positions, then stop calibration.</p>${axisLiveTableHtml()}`,
+    [
+      {
+        label: "Stop calibration",
+        className: "ok",
+        onClick: async () => {
+          await send("CFG CALSTOP");
+          closeModal();
+        }
+      },
+      { label: "Close", className: "secondary", onClick: closeModal }
+    ]
+  );
+});
+el("calStop").addEventListener("click", async () => {
+  await send("CFG CALSTOP");
+});
+el("save").addEventListener("click", async () => {
+  await send("CFG SAVE");
+});
+el("defaults").addEventListener("click", async () => {
+  if (!confirm("Restore firmware defaults?")) return;
+  await send("CFG DEFAULTS");
+});
+el("applyButtons").addEventListener("click", applyButtons);
+el("clearButtons").addEventListener("click", clearButtons);
+el("applyAxes").addEventListener("click", applyAxes);
+el("modalBackdrop").addEventListener("click", e => {
+  if (e.target === el("modalBackdrop")) closeModal();
+});
+
+makeUi();
+log("Ready.");
+</script>
+</body>
+</html>
