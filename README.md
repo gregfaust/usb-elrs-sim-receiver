@@ -37,9 +37,6 @@ The device appears on the computer as:
 - Button mapping from any CRSF channel
 - LOW / MID / HIGH switch-position detection
 - Persistent configuration saving
-- Default configuration restore
-- Support for Seeed Studio XIAO SAMD21
-- Support for Seeed Studio XIAO RP2040
 
 ---
 
