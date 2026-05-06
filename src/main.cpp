@@ -75,17 +75,25 @@ uint8_t const desc_hid_report[] = {
 #define CRSF_HIGH_ZONE_MIN 1400
 
 // CRSF UART selection.
-// SAMD21: Serial1
-// RP2040: Serial2, with configurable GPIO pins below.
-#if defined(ARDUINO_ARCH_RP2040)
+#if defined(BOARD_PICO) || defined(ARDUINO_RASPBERRY_PI_PICO)
+  // Raspberry Pi Pico: 
   #define CRSF_SERIAL Serial2
+  #define CRSF_CUSTOM_PINS
+  #define CRSF_TX_PIN 4
+  #define CRSF_RX_PIN 5
 
-  // These are RP2040 GPIO numbers, not necessarily the printed Dx labels.
-  // Change them if your receiver is wired to different pins.
-  #define CRSF_RP2040_TX_PIN 4
-  #define CRSF_RP2040_RX_PIN 5
-#else
+#elif defined(BOARD_XIAO_RP2040)
+  // Seeed XIAO RP2040: 
   #define CRSF_SERIAL Serial1
+
+#elif defined(BOARD_XIAO_SAMD21)
+  // Seeed XIAO SAMD21
+  #define CRSF_SERIAL Serial1
+
+#else
+
+  #define CRSF_SERIAL Serial1
+
 #endif
 
 // HID axis source mapping.
@@ -500,9 +508,9 @@ void setup()
 
   Serial.begin(CRSF_BAUDRATE);
 
-#if defined(ARDUINO_ARCH_RP2040)
-  CRSF_SERIAL.setTX(CRSF_RP2040_TX_PIN);
-  CRSF_SERIAL.setRX(CRSF_RP2040_RX_PIN);
+#if defined(CRSF_CUSTOM_PINS)
+  CRSF_SERIAL.setTX(CRSF_TX_PIN);
+  CRSF_SERIAL.setRX(CRSF_RX_PIN);
 #endif
 
   CRSF_SERIAL.begin(CRSF_BAUDRATE, SERIAL_8N1);
@@ -522,6 +530,11 @@ void loop()
 
   crsf();
   handleUsbSerial();
+
+  // Detect signal lost
+  if (hasSignal && millis() - lastPacketMs > 500) {
+  hasSignal = false;
+  } // testing
 
   if (datardyf) {
     if (usb_hid.ready()) {
