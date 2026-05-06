@@ -71,6 +71,33 @@
       align-items: flex-start;
       margin-bottom: 18px;
     }
+    
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      width: 96px;
+      height: auto;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .brand-text {
+      min-width: 0;
+    }
+
+@media (max-width: 600px) {
+  .brand {
+    align-items: flex-start;
+  }
+
+  .logo {
+    width: 72px;
+  }
+}
 
     .status-row {
       display: flex;
@@ -365,16 +392,20 @@
 <body>
 <main>
   <div class="top">
-    <div>
-      <h1>USB EspressLRS Sim Receiver Configurator</h1>
-		<p>
-		  Web configurator for a USB ELRS/CRSF simulator receiver.
-		  The real-time view uses data streamed over USB Serial by the firmware.
-		  <a class="repo-link" href="https://github.com/Fak3R/usb-elrs-sim-receiver" target="_blank" rel="noopener noreferrer">
-			GitHub repository
-		  </a>
-		</p>
-    </div>
+    <div class="brand">
+  <img src="https://i.imgur.com/CCqoWH8.png" alt="USB ELRS Sim Receiver logo" class="logo">
+
+  <div class="brand-text">
+    <h1>USB EspressLRS Sim Receiver Configurator</h1>
+    <p>
+      Web configurator for a USB ELRS/CRSF simulator receiver.
+      The real-time view uses data streamed over USB Serial by the firmware.
+      <a class="repo-link" href="https://github.com/Fak3R/usb-elrs-sim-receiver" target="_blank" rel="noopener noreferrer">
+        GitHub repository
+      </a>
+    </p>
+  </div>
+</div>
     <div class="status-row">
       <button id="connectSerial">Connect Radio</button>
       <span id="serialStatus" class="status">Serial not connected</span>
