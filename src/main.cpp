@@ -10,6 +10,10 @@
   #include <FlashStorage.h>
 #endif
 
+#if defined(BOARD_TRINKET_M0)
+  #include <Adafruit_DotStar.h>
+#endif
+
 // ------------------------------------------------------------
 // HID descriptor: 8 axes, 16-bit each + 16 buttons + keyboard
 // ------------------------------------------------------------
@@ -50,6 +54,10 @@ enum {
 
 Adafruit_USBD_HID usb_hid;
 
+#if defined(BOARD_TRINKET_M0)
+Adafruit_DotStar strip(DOTSTAR_NUM, PIN_DOTSTAR_DATA, PIN_DOTSTAR_CLK, DOTSTAR_BGR);
+#endif
+
 uint8_t const desc_hid_report[] = {
   TUD_HID_REPORT_DESC_GAMEPAD_16BTN(HID_REPORT_ID(RID_GAMEPAD)),
   TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(RID_KEYBOARD))
@@ -88,6 +96,10 @@ uint8_t const desc_hid_report[] = {
 
 #elif defined(BOARD_XIAO_SAMD21)
   // Seeed XIAO SAMD21
+  #define CRSF_SERIAL Serial1
+
+#elif defined(BOARD_TRINKET_M0)
+  // Adafruit Trinket M0: Serial1 on pins 4 (TX) and 3 (RX)
   #define CRSF_SERIAL Serial1
 
 #else
@@ -208,6 +220,9 @@ bool channelMatchesPosition(uint16_t raw, uint8_t pos);
 void sendKeyboardFromButtons(uint16_t buttons);
 uint8_t parseKeyCode(const char *s);
 void printKeyName(uint8_t key);
+#if defined(BOARD_TRINKET_M0)
+void updateLed();
+#endif
 
 // ------------------------------------------------------------
 // Config
@@ -506,6 +521,12 @@ void setup()
     delay(1);
   }
 
+#if defined(BOARD_TRINKET_M0)
+  strip.begin();
+  strip.setBrightness(20);
+  strip.show();
+#endif
+
   Serial.begin(CRSF_BAUDRATE);
 
 #if defined(CRSF_CUSTOM_PINS)
@@ -541,8 +562,6 @@ void loop()
       usb_hid.sendReport(RID_GAMEPAD, &gp, sizeof(gp));
     }
 
-    delay(2);
-
     if (usb_hid.ready()) {
       sendKeyboardFromButtons(logicalButtons);
     }
@@ -554,6 +573,10 @@ void loop()
     printData();
     lastStreamMs = millis();
   }
+
+#if defined(BOARD_TRINKET_M0)
+  updateLed();
+#endif
 }
 
 // ------------------------------------------------------------
@@ -1022,3 +1045,19 @@ void printData()
 
   Serial.println("}");
 }
+
+#if defined(BOARD_TRINKET_M0)
+void updateLed()
+{
+  if (USBDevice.suspended()) {
+    strip.setPixelColor(0, 0, 0, 0);
+  } else if (calibrating) {
+    strip.setPixelColor(0, 64, 42, 0);
+  } else if (hasSignal) {
+    strip.setPixelColor(0, 0, 64, 0);
+  } else {
+    strip.setPixelColor(0, 64, 0, 0);
+  }
+  strip.show();
+}
+#endif
