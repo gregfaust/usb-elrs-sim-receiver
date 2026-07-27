@@ -46,6 +46,7 @@ The device appears on the computer as:
 
 - [Seeed Studio XIAO SAMD21](https://www.seeedstudio.com/Seeeduino-XIAO-Arduino-Microcontroller-SAMD21-Cortex-M0+-p-4426.html)
 - [Seeed Studio XIAO RP2040](https://www.seeedstudio.com/XIAO-RP2040-v1-0-p-5026.html)
+- [Adafruit Trinket M0](https://learn.adafruit.com/adafruit-trinket-m0) (with optional DotStar LED support)
 
 The XIAO SAMD21 is the recommended target if you want the simplest setup.
 
@@ -68,6 +69,8 @@ The receiver choice is not critical as long as it outputs CRSF and uses 3.3 V-co
 
 ## Device Connections
 
+### XIAO SAMD21 / RP2040
+
 Connect the ELRS receiver to the XIAO UART pins.
 
 ```text
@@ -77,11 +80,26 @@ XIAO   ---   ELRS Receiver
 GND    <-->  GND
 RX     <-->  TX
 TX     <-->  RX
-````
+```
 
 Both signal lines are 3.3 V logic.
 
 Because CRSF uses serial communication, RX must be connected to TX and TX must be connected to RX.
+
+### Adafruit Trinket M0
+
+Connect the ELRS receiver to the Trinket M0 pins.
+
+```text
+Trinket M0   ---   ELRS Receiver
+============================
+5V           <-->  5V
+GND          <-->  GND
+Pin 3 (RX)   <-->  TX
+Pin 4 (TX)   <-->  RX
+```
+
+Both signal lines are 3.3 V logic.
 
 ---
 
@@ -130,11 +148,12 @@ Then open the PlatformIO sidebar and select the correct environment.
 
 ## PlatformIO Environments
 
-The project supports two targets:
+The project supports three targets:
 
 ```text
 xiao_samd21
 xiao_rp2040
+trinket_m0
 ```
 
 If upload fails, double-tap the reset button to enter bootloader mode and run upload again.
@@ -332,13 +351,3 @@ Based on the project originally developed by Peter Feerick:
 * [https://github.com/pfeerick/USB_ELRS_Receiver](https://github.com/pfeerick/USB_ELRS_Receiver)
 
 This version adds Web Serial configuration, live monitoring, calibration, persistent settings, configurable HID button mapping, and optional keyboard HID output with per-button key assignment.
-```
-The image paths and part of the readme come from the original `pfeerick/USB_ELRS_Receiver` `doc/xiao-samd21-wiring.png`, `doc/xiao-rp2040-wiring.png`, `doc/xiao-samd21-built-unit.png`, `doc/xiao-rp2040-built-unit.png`, and `doc/pio-upload.png`. 
-```
----
-
-## License
-
-This project is released under the MIT License.
-
-Keep the original license notices when redistributing modified versions.
